@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define MAXURL 50
 
@@ -16,18 +17,19 @@ typedef struct QueueNode{
 } QueueNode;
 
 
-void push(StackNode* stack, char* newUrl);
-char* pop(StackNode* stack);
-char* peek(StackNode* stack);
-bool isEmpty(StackNode* stack);
+void push(StackNode** stack, char* newUrl);
+char* pop(StackNode** stack);
+char* peekStack(StackNode** stack);
+bool isEmptyStack(StackNode** stack);
 
-void enqueue(QueueNode* queue, char* newUrl);
-char* dequeue(QueueNode* queue);
-char* peek(QueueNode* queue);
-bool isEmpty(QueueNode* queue);
+void enqueue(QueueNode** queue, char* newUrl);
+char* dequeue(QueueNode** queue);
+char* peekQueue(QueueNode** queue);
+bool isEmptyQueue(QueueNode** queue);
 
 
 int main() {
+    
     QueueNode* queue = NULL;
     StackNode* backStack = NULL;
     StackNode* forwardStack = NULL;
@@ -45,32 +47,48 @@ int main() {
             printf("5. Browsing History Log\n");
             printf("6. Exit\n");
             choice = getchar();
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF) {       //clear input buffer
+                continue;
+            }
 
             switch (choice) {
                 case '1':
                     printf("Enter the URL of the new web page: ");
                     char newUrl[MAXURL];
-                    fgets(newUrl, sizeof(MAXURL), stdin);
+                    if (fgets(newUrl, sizeof(newUrl), stdin) != NULL) {
+                        if (!strchr(newUrl, '\n')) {
+                            // consume rest of chars up to '\n'
+                            int ch;
+                            while (((ch = getchar()) != '\n') && ch != EOF)
+                                continue;
+                        }
+                    }
                     enqueue(&queue, newUrl);
-                    push(backStack, newUrl);
+                    push(&backStack, newUrl);
                     break;
-                case '2':
+                case '2': 
+                    if (isEmptyStack(&backStack)) {
+                        break;
+                    }
                     dequeue(&queue);
-                    push(forwardStack, peek(backStack));
-                    pop(backStack);
+                    push(&forwardStack, peekStack(&backStack));
+                    pop(&backStack);
+                    printf("Current Page: %s", peekStack(&backStack));
                     break;
                 case '3':
-                    pop(forwardStack);
-                    push(backStack, peek(forwardStack));
+//                    pop(&forwardStack);
+                    push(&backStack, peekStack(&forwardStack));
                     dequeue(&queue);
+                    printf("Current Page: %s", peekStack(&backStack));
                     break;
                 case '4':
-                    printf("Current Page: %s", peek(&queue)); //////circle back aorund
+                    printf("Current Page: %s", peekQueue(&queue)); //////circle back aorund
                     break;
                 case '5':
                    current = queue;
                    while (current != NULL) {
-                       printf("%s", peek(&queue));
+                       printf("%s", peekQueue(&queue));
                        current = current->front;   // circle back around
                    }
                    break;
@@ -87,44 +105,50 @@ int main() {
 
 
 
-void push(StackNode* stack, char* newUrl){
+void push(StackNode** stack, char* newUrl){
     StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
-    newNode->next = stack;
+    if (!isEmptyStack(stack)) {
+        newNode->next = *stack;
+    }
+    else {
+        newNode->next = NULL;
+    }
     strncpy(newNode->url, newUrl, MAXURL);
+    *stack = newNode; 
 }
 
-char* pop(StackNode* stack){
-    if (isEmpty(stack)) {
+char* pop(StackNode** stack){
+    if (isEmptyStack(stack)) {
         return NULL;
     }
-    StackNode* temp = stack;
-    stack = stack->next;
+    StackNode* temp = *stack;
+    *stack = (*stack)->next;
     char* url = (char*)malloc(MAXURL * sizeof(char));
     strncpy(url, temp->url, MAXURL);
     free(temp);
     return url;
 }
 
-char* peek(StackNode* stack){
-    if (isEmpty(stack)) {
+char* peekStack(StackNode** stack){
+    if (isEmptyStack(stack)) {
         return NULL;
     }
-    return stack->url;
+    return (*stack)->url;
 }
 
-bool isEmpty(StackNode* stack){
-    return stack == NULL;
+bool isEmptyStack(StackNode** stack){
+    return *stack == NULL;
 }
 
-void enqueue(QueueNode* queue, char* newUrl){
+void enqueue(QueueNode** queue, char* newUrl){
     QueueNode* newNode = (QueueNode*)malloc(sizeof(QueueNode));
     strncpy(newNode->url, newUrl, MAXURL);
     newNode->front = NULL;
-    if (queue == NULL) {
-        queue = newNode;
+    if (*queue == NULL) {
+        *queue = newNode;
     } 
     else {
-        QueueNode* current = queue;
+        QueueNode* current = *queue;
         while (current->front != NULL) {
             current = current->front;
         }
@@ -132,13 +156,13 @@ void enqueue(QueueNode* queue, char* newUrl){
     }
 }
 
-char* dequeue(QueueNode* queue){
-    if (isEmpty(queue)){
+char* dequeue(QueueNode** queue){
+    if (isEmptyQueue(queue)){
         return NULL;
     }
     else {
-        QueueNode* temp = queue;
-        queue = queue->front;
+        QueueNode* temp = *queue;
+        *queue = (*queue)->front;
         char* url = (char*)malloc(MAXURL * sizeof(char));
         strncpy(url, temp->url, MAXURL);
         free(temp);
@@ -146,15 +170,15 @@ char* dequeue(QueueNode* queue){
     }
 }
 
-char* peek(QueueNode* queue){
-    if (isEmpty(queue)){
+char* peekQueue(QueueNode** queue){
+    if (isEmptyQueue(queue)){
         return NULL;
     }
     else {
-        return queue->url;
+        return (*queue)->url;
     }
 }
 
-bool isEmpty(QueueNode* queue){
-    return queue == NULL;
+bool isEmptyQueue(QueueNode** queue){
+    return *queue == NULL;
 }
