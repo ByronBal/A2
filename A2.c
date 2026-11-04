@@ -21,10 +21,10 @@ char* pop(StackNode* stack);
 char* peek(StackNode* stack);
 bool isEmpty(StackNode* stack);
 
-//void enqueue(QueueNode* queue, char* newUrl);
-//char* dequeue(QueueNode* queue);
-//char* peek(QueueNode* queue);
-//bool isEmpty(QueueNode* queue);
+void enqueue(QueueNode* queue, char* newUrl);
+char* dequeue(QueueNode* queue);
+char* peek(QueueNode* queue);
+bool isEmpty(QueueNode* queue);
 
 
 int main() {
@@ -51,29 +51,29 @@ int main() {
                     printf("Enter the URL of the new web page: ");
                     char newUrl[MAXURL];
                     fgets(newUrl, sizeof(MAXURL), stdin);
-//                    enqueue(&queue, newUrl);
+                    enqueue(&queue, newUrl);
                     push(backStack, newUrl);
                     break;
                 case '2':
-//                    dequeue(&queue);
+                    dequeue(&queue);
                     push(forwardStack, peek(backStack));
                     pop(backStack);
                     break;
                 case '3':
                     pop(forwardStack);
                     push(backStack, peek(forwardStack));
-//                    dequeue(&queue);
+                    dequeue(&queue);
                     break;
                 case '4':
-//                    printf("Current Page: %s", peek(&queue)); //////circle back aorund
+                    printf("Current Page: %s", peek(&queue)); //////circle back aorund
                     break;
                 case '5':
-//                    current = queue;
-//                    while (current != NULL) {
-//                        printf("%s", peek(&queue));
-//                        current = current->front;   // circle back around
-//                    }
-//                    break;
+                   current = queue;
+                   while (current != NULL) {
+                       printf("%s", peek(&queue));
+                       current = current->front;   // circle back around
+                   }
+                   break;
                 case '6':
                     printf("Exiting the program.\n");
                     return 0;
@@ -116,9 +116,45 @@ bool isEmpty(StackNode* stack){
     return stack == NULL;
 }
 
-// void enqueue(QueueNode* queue, char* newUrl){
+void enqueue(QueueNode* queue, char* newUrl){
+    QueueNode* newNode = (QueueNode*)malloc(sizeof(QueueNode));
+    strncpy(newNode->url, newUrl, MAXURL);
+    newNode->front = NULL;
+    if (queue == NULL) {
+        queue = newNode;
+    } 
+    else {
+        QueueNode* current = queue;
+        while (current->front != NULL) {
+            current = current->front;
+        }
+        current->front = newNode;
+    }
+}
 
-// }
-// char* dequeue(QueueNode* queue);
-// char* peek(QueueNode* queue);
-// bool isEmpty(QueueNode* queue);
+char* dequeue(QueueNode* queue){
+    if (isEmpty(queue)){
+        return NULL;
+    }
+    else {
+        QueueNode* temp = queue;
+        queue = queue->front;
+        char* url = (char*)malloc(MAXURL * sizeof(char));
+        strncpy(url, temp->url, MAXURL);
+        free(temp);
+        return url;
+    }
+}
+
+char* peek(QueueNode* queue){
+    if (isEmpty(queue)){
+        return NULL;
+    }
+    else {
+        return queue->url;
+    }
+}
+
+bool isEmpty(QueueNode* queue){
+    return queue == NULL;
+}
