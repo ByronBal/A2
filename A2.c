@@ -73,11 +73,12 @@ int main() {
                     }
                     dequeue(&queue);
                     push(&forwardStack, peekStack(&backStack));
+                    printf("Forward page: %s", peekStack(&backStack));
                     pop(&backStack);
                     printf("Current Page: %s", peekStack(&backStack));
                     break;
                 case '3':
-//                    pop(&forwardStack);
+                    printf("Forward page: %s", peekStack(&forwardStack));
                     push(&backStack, peekStack(&forwardStack));
                     dequeue(&queue);
                     printf("Current Page: %s", peekStack(&backStack));
