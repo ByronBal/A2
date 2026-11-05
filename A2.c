@@ -5,6 +5,17 @@
 
 #define MAXURL 50 // Maximum length of a URL
 
+/*      
+*       : Byron Balsom
+*       : 9035238
+*       : A2.c
+*       : This program replicates a web browsers back and forward buttons using 
+*       : a stack and queue data structure. The user can visit new web pages, navigate
+*       : forward and backward, display the current page, and view the browsing history log.
+*       : November 2, 2026
+*/
+
+
 typedef struct StackNode{
     char url[MAXURL];
     struct StackNode* next;
