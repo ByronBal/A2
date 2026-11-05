@@ -75,25 +75,41 @@ int main() {
                     push(&forwardStack, peekStack(&backStack));
                     printf("Forward page: %s", peekStack(&backStack));
                     pop(&backStack);
-                    printf("Current Page: %s", peekStack(&backStack));
+                    printf("Current Page: %s\n", peekStack(&backStack));
                     break;
                 case '3':
+                    if (isEmptyStack(&forwardStack)) {
+                        break;
+                    }
                     printf("Forward page: %s", peekStack(&forwardStack));
                     push(&backStack, peekStack(&forwardStack));
                     dequeue(&queue);
-                    printf("Current Page: %s", peekStack(&backStack));
+                    printf("Current Page: %s\n", peekStack(&backStack));
                     break;
                 case '4':
-                    printf("Current Page: %s", peekQueue(&queue)); //////circle back aorund
+                    if (isEmptyQueue(&queue)) {
+                        printf("Queue is empty.\n");
+                        break;
+                    }
+                    printf("Current Page: %s\n", peekQueue(&queue)); 
                     break;
                 case '5':
                    current = queue;
                    while (current != NULL) {
-                       printf("%s", peekQueue(&queue));
-                       current = current->front;   // circle back around
+                       printf("%s\n", current->url);
+                       current = current->front;
                    }
                    break;
                 case '6':
+                    while (!isEmptyStack(&backStack)) {
+                        pop(&backStack);
+                    }
+                    while (!isEmptyStack(&forwardStack)) {
+                        pop(&forwardStack);
+                    }
+                    while (!isEmptyQueue(&queue)) {
+                        dequeue(&queue);
+                    }
                     printf("Exiting the program.\n");
                     return 0;
                 default:
